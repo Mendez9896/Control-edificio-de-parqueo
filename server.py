@@ -4,7 +4,7 @@
 import random
 import time
 
-from paho.mqtt import client as mqtt_client
+from paho.mqtt import client as mqtt_client 
 
 #configuration
 broker = 'broker.hivemq.com'
@@ -17,6 +17,11 @@ msg_count = 1
 # generate client ID with pub prefix randomly
 client_id = f'python-mqtt-{random.randint(0, 100)}'
 
+# estructura = [{"1A": 1, "2A": 1},{},{},{},{}]
+# piso = 1
+# estructura[piso-1]["1A"]
+
+# estructura2 = {"12345":[1,2],"654321": [2,4]}
 
 def connect_mqtt() -> mqtt_client:
     def on_connect(client, userdata, flags, rc):
@@ -56,6 +61,7 @@ def publish(client):
 
 
 def run():
+    # print(estructura2["12345"][0])
     client = connect_mqtt()
     subscribe(client)
     client.loop_forever()

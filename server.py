@@ -33,7 +33,7 @@ estructura = [{"1A": 0, "2A": 1},{"1A": 0, "2A": 1},{"1A": 0, "2A": 0},{"1A": 0,
 # piso = 1
 # estructura[piso-1]["1A"]
 
-# estructura2 = {"12345":[1,2],"654321": [2,4]}
+estructura2 = {}
 
 def connect_mqtt() -> mqtt_client:
     def on_connect(client, userdata, flags, rc):
@@ -108,6 +108,15 @@ def subscribeApp(client: mqtt_client):
                 msg+=msgcubil
                 msg=msg[:-1]
                 publishPiso(client,msg)
+            elif comand[0] == "ocupar" :
+                nd = {comand[3]: [comand[1],comand[2]]}
+                estructura2.update(nd)
+            elif comand[0] == "buscar" :
+                keys = estructura2.keys()
+                if comand[1] in keys :
+                    publishBuscarParqueo(client, estructura2.get(comand[1]))
+                else:
+                    publishBuscarParqueo(client, 0)
         elif msg.topic==subscribeTopicEstadoCubil:
             estado = msg.payload.decode().split(",")
             piso= int(estado[0])-1
@@ -123,6 +132,23 @@ def subscribeApp(client: mqtt_client):
     client.subscribe(subscribeTopicEstadoCubil)
     client.on_message = on_message
 
+
+
+def publishBuscarParqueo(client, lugar):
+    time.sleep(1)
+    publishTopic = "2587/parqueo/buscar"
+    if lugar == 0 :
+        msg = 0
+    else:
+        msg = lugar[0] + "," + lugar[1]
+    
+    result = client.publish(publishTopic, msg)
+    # result: [0, 1]
+    status = result[0]
+    if status == 0:
+        print(f"Send `{msg}` to topic `{publishTopic}`")
+    else:
+        print(f"Failed to send message to topic {publishTopic}")
 
 
 def publishPisos(client,floors):    

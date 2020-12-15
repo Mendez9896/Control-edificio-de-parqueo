@@ -10,8 +10,11 @@ from paho.mqtt import client as mqtt_client
 broker = 'broker.hivemq.com'
 port = 1883
 
-publishTopic="rams/publish2"
+subscribeCubil = "2587/parqueo/cubil"
+subscribeCubilEstadoInfo = "2587/parqueo/cubil/estado/info"
+publishCubilEstado= "2587/parqueo/cubil/estado"
 
+publishTopic="rams/publish2"
 publishPisosDisponibles="2587/server/disponibles_pisos"
 publishTopicEstadoCubil="2587/parqueo/cubil/estado/info"
 
@@ -47,10 +50,30 @@ def connect_mqtt() -> mqtt_client:
     return client
 
 
+
+def cubilSubscribe(client: mqtt_client):
+    def on_message(client, userdata, msg):
+        print(f"Received `{msg.payload.decode()}` from `{msg.topic}` topic")
+        if msg.topic == "2587/parqueo/cubil":
+            (piso,cubil,ocupado) = str(msg.payload.decode()).split(",")
+            estructura[int(piso)-1][str(cubil)]=int(ocupado)
+            # print(estructura[int(piso)-1][str(cubil)])
+        elif msg.topic == "2587/parqueo/cubil/estado/info":
+            allParkingSpaces = str(msg.payload.decode()).split("|")
+            for i in allParkingSpaces:
+                if str(i) != "":
+                    (piso,cubil,ocupado) = str(i).split(",")
+                    estructura[int(piso)-1][str(cubil)]=int(ocupado)
+            # print(estructura)
+    client.subscribe(subscribeCubil)
+    client.subscribe(subscribeCubilEstadoInfo)
+    client.on_message = on_message
+
+
+
 def subscribe(client: mqtt_client):
     def on_message(client, userdata, msg):
         print(f"Received `{msg.payload.decode()}` from `{msg.topic}` topic")
-        publish(client)
     client.subscribe(subscribeTopic)
     client.on_message = on_message
 
@@ -101,18 +124,6 @@ def subscribeApp(client: mqtt_client):
     client.on_message = on_message
 
 
-def publish(client):    
-    global msg_count
-    time.sleep(1)
-    msg = f"OK"
-    result = client.publish(publishTopic, msg)
-    # result: [0, 1]
-    status = result[0]
-    if status == 0:
-        print(f"Send `{msg}` to topic `{publishTopic}`")
-    else:
-        print(f"Failed to send message to topic {publishTopic}")
-    msg_count += 1
 
 def publishPisos(client,floors):    
     global msg_count
@@ -156,17 +167,26 @@ def publishEstadoCubil(client,msg2):
         print(f"Failed to send message to topic {publishTopicEstadoCubil}")
     msg_count += 1
 
+def cubilEstadoPublish(client):
+    result = client.publish(publishCubilEstado,"0")
+    status = result[0]
+    if status == 0:
+        print(f"Send 0 to topic `{publishCubilEstado}`")
+    else:
+        print(f"Failed to send message to topic {publishCubilEstado}")  
+
 def run():
-    # print(estructura2["12345"][0])
+    
     client = connect_mqtt()
     #subscribe(client)
-    subscribeApp(client)
+    #subscribeApp(client)
+    # cubilEstadoPublish(client)
+    # cubilSubscribe(client)
     #subscribeCubilEstado(client)
     #client.loop_forever()
     while True:
         client.loop()
         time.sleep(5)
-        
 
 
 if __name__ == '__main__':

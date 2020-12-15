@@ -16,7 +16,7 @@ publishCubilEstado= "2587/parqueo/cubil/estado"
 
 publishTopic="rams/publish2"
 publishPisosDisponibles="2587/server/disponibles_pisos"
-publishTopicEstadoCubil="2587/parqueo/cubil/estado/info"
+publishTopicEstadoCubil="2587/parqueo/cubil/estado/take"
 
 publishPisoTopic="2587/server/disponibles_piso"
 subscribeTopic="rams/subscribe"

@@ -170,7 +170,7 @@ def publishPisos(client,floors):
     msg = f""
     counter=1
     for key in floors:
-        msg += str(counter)+","+str(floors[key])
+        msg += str(counter)+","+str(key)
         if counter!=5:
             msg+="|"
         counter+=1

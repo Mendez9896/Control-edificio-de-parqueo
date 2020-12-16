@@ -96,7 +96,7 @@ def subscribeApp(client: mqtt_client):
                     counter+=1
                 publishPisos(client,floors)
             elif comand[0]=="disponible_piso":
-                if isnumeric(comand[1]):
+                if comand[1].isnumeric():
                     piso= int(comand[1])-1
                     msg=str(comand[1])+"|"
                     msgcounter=0

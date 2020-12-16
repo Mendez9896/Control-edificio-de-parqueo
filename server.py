@@ -205,14 +205,11 @@ def run():
     
     client = connect_mqtt()
     #subscribe(client)
-    #subscribeApp(client)
+    subscribeApp(client)
     # cubilEstadoPublish(client)
     # cubilSubscribe(client)
     #subscribeCubilEstado(client)
-    #client.loop_forever()
-    while True:
-        client.loop()
-        time.sleep(5)
+    client.loop_forever()
 
 
 if __name__ == '__main__':

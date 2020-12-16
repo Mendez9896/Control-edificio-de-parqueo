@@ -208,7 +208,7 @@ def run():
     #subscribe(client)
     subscribeApp(client)
     # cubilEstadoPublish(client)
-    # cubilSubscribe(client)
+    #cubilSubscribe(client)
     #subscribeCubilEstado(client)
     client.loop_forever()
 

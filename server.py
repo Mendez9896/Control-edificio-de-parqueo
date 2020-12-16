@@ -96,18 +96,19 @@ def subscribeApp(client: mqtt_client):
                     counter+=1
                 publishPisos(client,floors)
             elif comand[0]=="disponible_piso":
-                piso= int(comand[1])-1
-                msg=str(comand[1])+"|"
-                msgcounter=0
-                msgcubil=""
-                for key in estructura[piso]:
-                    if estructura[piso][key] == 0:
-                        msgcubil+=key+"|"
-                        msgcounter+=1
-                msg+=str(msgcounter)+"|"
-                msg+=msgcubil
-                msg=msg[:-1]
-                publishPiso(client,msg)
+                if comand[1].isnumeric():
+                    piso= int(comand[1])-1
+                    msg=str(comand[1])+"|"
+                    msgcounter=0
+                    msgcubil=""
+                    for key in estructura[piso]:
+                        if estructura[piso][key] == 0:
+                            msgcubil+=key+"|"
+                            msgcounter+=1
+                    msg+=str(msgcounter)+"|"
+                    msg+=msgcubil
+                    msg=msg[:-1]
+                    publishPiso(client,msg)
             elif comand[0] == "ocupar" :
                 nd = {comand[3]: [comand[1],comand[2]]}
                 estructura2.update(nd)

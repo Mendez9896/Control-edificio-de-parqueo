@@ -70,7 +70,6 @@ def cubilSubscribe(client: mqtt_client):
     client.on_message = on_message
 
 
-
 def subscribe(client: mqtt_client):
     def on_message(client, userdata, msg):
         print(f"Received `{msg.payload.decode()}` from `{msg.topic}` topic")
@@ -129,8 +128,21 @@ def subscribeApp(client: mqtt_client):
             else:
                 msg+=str(1)+","+"Nok"
             publishEstadoCubil(client,msg)
+        elif msg.topic == "2587/parqueo/cubil":
+            (piso,cubil,ocupado) = str(msg.payload.decode()).split(",")
+            estructura[int(piso)-1][str(cubil)]=int(ocupado)
+            # print(estructura[int(piso)-1][str(cubil)])
+        elif msg.topic == "2587/parqueo/cubil/estado/info":
+            allParkingSpaces = str(msg.payload.decode()).split("|")
+            for i in allParkingSpaces:
+                if str(i) != "":
+                    (piso,cubil,ocupado) = str(i).split(",")
+                    estructura[int(piso)-1][str(cubil)]=int(ocupado)
+            # print(estructura)
     client.subscribe(subscribeTopicApp)
     client.subscribe(subscribeTopicEstadoCubil)
+    client.subscribe(subscribeCubil)
+    client.subscribe(subscribeCubilEstadoInfo)
     client.on_message = on_message
 
 
@@ -205,12 +217,11 @@ def cubilEstadoPublish(client):
 def run():
     
     client = connect_mqtt()
-    #subscribe(client)
+    # subscribe(client)
+    cubilEstadoPublish(client)
     subscribeApp(client)
-    # cubilEstadoPublish(client)
     # cubilSubscribe(client)
-    #subscribeCubilEstado(client)
-    #client.loop_forever()
+    # client.loop_forever()
     while True:
         client.loop()
         time.sleep(5)

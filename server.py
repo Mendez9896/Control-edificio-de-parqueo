@@ -16,20 +16,20 @@ publishCubilEstado= "2587/parqueo/cubil/estado"
 
 publishTopic="rams/publish2"
 publishPisosDisponibles="2587/server/disponibles_pisos"
-publishTopicEstadoCubil="2587/parqueo/cubil/estado/take"
+publishTopicEstadoCubil="2587/parqueo/cubil/estado"
 
 publishPisoTopic="2587/server/disponibles_piso"
 subscribeTopic="rams/subscribe"
 subscribeTopicApp="2587/App"
 
-subscribeTopicEstadoCubil="2587/parqueo/cubil/estado"
+subscribeTopicEstadoCubil="2587/parqueo/cubil/estado/take"
 
 msg_count = 1
 
 # generate client ID with pub prefix randomly
 client_id = f'python-mqtt-{random.randint(0, 100)}'
 
-estructura = [{"1A": 0, "2A": 1},{"1A": 0, "2A": 1},{"1A": 0, "2A": 0},{"1A": 0, "2A": 1},{"1A": 0, "2A": 1}]
+estructura = [{},{},{},{},{}]
 # piso = 1
 # estructura[piso-1]["1A"]
 
@@ -111,33 +111,24 @@ def subscribeApp(client: mqtt_client):
             elif comand[0] == "ocupar" :
                 nd = {comand[3]: [comand[1],comand[2]]}
                 estructura2.update(nd)
+                print(estructura2)
             elif comand[0] == "buscar" :
                 keys = estructura2.keys()
                 if comand[1] in keys :
                     publishBuscarParqueo(client, estructura2.get(comand[1]))
                 else:
                     publishBuscarParqueo(client, 0)
-        elif msg.topic==subscribeTopicEstadoCubil:
-            estado = msg.payload.decode().split(",")
-            piso= int(estado[0])-1
-            cubil= estado[1]
-            msg=estado[0]+","+estado[1]+","
-            if estructura[piso][cubil]==0:
-                estructura[piso][cubil] = 1
-                msg+=str(1)+","+"ok"
-            else:
-                msg+=str(1)+","+"Nok"
-            publishEstadoCubil(client,msg)
         elif msg.topic == "2587/parqueo/cubil":
             (piso,cubil,ocupado) = str(msg.payload.decode()).split(",")
             estructura[int(piso)-1][str(cubil)]=int(ocupado)
             # print(estructura[int(piso)-1][str(cubil)])
         elif msg.topic == "2587/parqueo/cubil/estado/info":
             allParkingSpaces = str(msg.payload.decode()).split("|")
-            for i in allParkingSpaces:
-                if str(i) != "":
-                    (piso,cubil,ocupado) = str(i).split(",")
-                    estructura[int(piso)-1][str(cubil)]=int(ocupado)
+            if len(allParkingSpaces) > 1:
+                for i in allParkingSpaces:
+                    if str(i) != "":
+                        (piso,cubil,ocupado) = str(i).split(",")
+                        estructura[int(piso)-1][str(cubil)]=int(ocupado)
             # print(estructura)
     client.subscribe(subscribeTopicApp)
     client.subscribe(subscribeTopicEstadoCubil)
